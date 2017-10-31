@@ -85,6 +85,11 @@ public class OrderController {
         }
     }
 
+    /**
+     * Get the list of all order that has the specified table number
+     * @param id
+     * @return List of all Order that has the specified table number with appropriate response
+     */
     @GET
     @Path("table/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -95,6 +100,11 @@ public class OrderController {
         return Response.ok().entity(orders).build();
     }
 
+    /**
+     * Delete all order that has the specified table number
+     * @param id
+     * @return an appropriate response
+     */
     @DELETE
     @Path("table/{id}")
     @Produces(MediaType.APPLICATION_JSON)
