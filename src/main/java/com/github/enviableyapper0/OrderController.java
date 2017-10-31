@@ -92,7 +92,7 @@ public class OrderController {
         List<Order> orders = OrderDAO.getTableOrders(id);
         if (orders.isEmpty())
             return Response.status(Response.Status.NO_CONTENT).build();
-        return Response.ok().build();
+        return Response.ok().entity(orders).build();
     }
 
     @DELETE
