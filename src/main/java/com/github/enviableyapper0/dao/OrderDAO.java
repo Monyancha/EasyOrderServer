@@ -31,4 +31,20 @@ public class OrderDAO {
             return true;
         }
     }
+
+    public static List<Order> getTableOrders(int tableNum) {
+        List<Order> orderInTable = new ArrayList<>();
+        return orderInTable;
+    }
+
+    public static boolean deleteTableOrders(int tableNum) {
+        boolean elementDeleted = false;
+        for (Order order : orders) {
+            if (order != null && order.getTableNum() == tableNum) {
+                orders.set(orders.indexOf(order), null);
+                elementDeleted = true;
+            }
+        }
+        return elementDeleted;
+    }
 }

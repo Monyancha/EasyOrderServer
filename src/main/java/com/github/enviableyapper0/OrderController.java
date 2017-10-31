@@ -4,6 +4,7 @@ import com.github.enviableyapper0.beans.FoodItem;
 import com.github.enviableyapper0.beans.FoodType;
 import com.github.enviableyapper0.beans.Order;
 import com.github.enviableyapper0.dao.OrderDAO;
+import com.sun.org.apache.xpath.internal.operations.Or;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -54,6 +55,27 @@ public class OrderController {
     @Path("{id}")
     public Response deleteOrder(final @PathParam("id") int id) {
         if (OrderDAO.deleteOrder(id)) {
+            return Response.ok().build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    @GET
+    @Path("table/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getOrdersFromTable(final @PathParam("id") int id) {
+        List<Order> orders = OrderDAO.getTableOrders(id);
+        if (orders.isEmpty())
+            return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.ok().build();
+    }
+
+    @DELETE
+    @Path("table/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteTableOrders(final @PathParam("id") int id) {
+        if (OrderDAO.deleteTableOrders(id)) {
             return Response.ok().build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();
