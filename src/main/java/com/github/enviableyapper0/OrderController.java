@@ -14,6 +14,10 @@ import java.util.List;
 
 @Path("order")
 public class OrderController {
+    /**
+     * This method return a sample json object when called by GET request at /order/test
+     * @return a sample object
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("test")
@@ -23,12 +27,21 @@ public class OrderController {
         return order;
     }
 
+    /**
+     * This method return a list of all order
+     * @return list of all order
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public List<Order> getAllOrder() {
         return OrderDAO.getAllOrder();
     }
 
+    /**
+     * Get individual order
+     * @param id
+     * @return an object which the id that was specified with appropriate response
+     */
     @GET
     @Path("{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -45,6 +58,11 @@ public class OrderController {
         return Response.ok(toReturn, MediaType.APPLICATION_JSON).build();
     }
 
+    /**
+     * Add an order to the list
+     * @param got
+     * @return An appropriate response with object id (as integer) in body
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response processIt(Order got) {
@@ -52,6 +70,11 @@ public class OrderController {
         return Response.status(Response.Status.CREATED).entity(got.getId()).build();
     }
 
+    /**
+     * Delete an object, id will not be recycled for the rest of server instance lifetime
+     * @param id
+     * @return an appropriate response
+     */
     @DELETE
     @Path("{id}")
     public Response deleteOrder(final @PathParam("id") int id) {
