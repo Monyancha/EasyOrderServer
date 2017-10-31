@@ -48,7 +48,8 @@ public class OrderController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response processIt(Order got) {
-        return Response.status(Response.Status.CREATED).entity(OrderDAO.addOrder(got)).build();
+        got.setId(OrderDAO.addOrder(got));
+        return Response.status(Response.Status.CREATED).entity(got.getId()).build();
     }
 
     @DELETE
