@@ -10,7 +10,13 @@ public class OrderDAO {
     private static List<Order> orders = new ArrayList<>();
 
     public static List<Order> getAllOrder() {
-        return orders;
+        List<Order> toReturnOrder = new ArrayList<>();
+        for (Order order : orders) {
+            if (order != null) {
+                toReturnOrder.add(order);
+            }
+        }
+        return toReturnOrder;
     }
 
     public static int addOrder(Order order) {
