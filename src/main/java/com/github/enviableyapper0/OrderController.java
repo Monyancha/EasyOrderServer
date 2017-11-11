@@ -4,12 +4,10 @@ import com.github.enviableyapper0.beans.FoodItem;
 import com.github.enviableyapper0.beans.FoodType;
 import com.github.enviableyapper0.beans.Order;
 import com.github.enviableyapper0.dao.OrderDAO;
-import com.sun.org.apache.xpath.internal.operations.Or;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.awt.image.MemoryImageSource;
 import java.util.List;
 
 @Path("order")
@@ -110,6 +108,21 @@ public class OrderController {
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteTableOrders(final @PathParam("id") int id) {
         if (OrderDAO.deleteTableOrders(id)) {
+            return Response.ok().build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+    }
+
+    /**
+     * Delete an specified food item in order
+     *
+     * @return an appropriate response
+     */
+    @DELETE
+    @Path("{orderId},{id}")
+    public Response deleteFoodItemInOrder(final @PathParam("orderId") int orderId, final @PathParam("id") int id) {
+        if (OrderDAO.deleteIndividualFoodItem(orderId, id)) {
             return Response.ok().build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).build();

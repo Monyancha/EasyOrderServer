@@ -25,10 +25,9 @@ public class OrderDAO {
     public static boolean deleteOrder(int index) {
         try {
             orders.set(index, null);
+            return true;
         } catch (NoSuchElementException ex) {
             return false;
-        } finally {
-            return true;
         }
     }
 
@@ -46,5 +45,14 @@ public class OrderDAO {
             }
         }
         return elementDeleted;
+    }
+
+    public static boolean deleteIndividualFoodItem(int orderId, int foodId) {
+        try {
+            getOrder(orderId).getFoods().remove(foodId);
+            return true;
+        } catch (NoSuchElementException ex) {
+            return false;
+        }
     }
 }
