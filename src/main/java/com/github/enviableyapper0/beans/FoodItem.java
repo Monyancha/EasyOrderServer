@@ -11,12 +11,12 @@ public class FoodItem implements Serializable {
     private String name;
     private int quantity = 0;
     private boolean isAvailable = true;
-    private String id;
+    private int id;
     private FoodType foodType;
 
     public FoodItem() {}
 
-    public FoodItem(String id, String name, double price, FoodType foodType) {
+    public FoodItem(int id, String name, double price, FoodType foodType) {
         this.price = price;
         this.name = name;
         this.foodType = foodType;
@@ -51,7 +51,7 @@ public class FoodItem implements Serializable {
         return foodType;
     }
 
-    public String getID() {
+    public int getID() {
         return id;
     }
 }

@@ -21,7 +21,7 @@ public class OrderController {
     @Path("test")
     public Order getTestFood() {
         Order order = new Order(42, 3);
-        order.getFoods().add(new FoodItem("42", "Test Food", 30, FoodType.MAIN_DISH));
+        order.getFoods().add(new FoodItem(42, "Test Food", 30, FoodType.MAIN_DISH));
         return order;
     }
 
