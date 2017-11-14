@@ -61,7 +61,7 @@ public class OrderController {
         } catch (IndexOutOfBoundsException ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
         } catch (SQLException e) {
-            return buildInternalServerErrorResponse()
+            return buildInternalServerErrorResponse(e);
         }
         if (toReturn == null) {
             return Response.status(Response.Status.GONE).build();
