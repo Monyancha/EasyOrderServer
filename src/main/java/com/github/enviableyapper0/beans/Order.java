@@ -3,6 +3,7 @@ package com.github.enviableyapper0.beans;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Order implements Serializable {
     private List<FoodItem> foods;
@@ -45,5 +46,18 @@ public class Order implements Serializable {
                 ", id=" + id +
                 ", tableNum=" + tableNum +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Order order = (Order) o;
+        return id == order.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

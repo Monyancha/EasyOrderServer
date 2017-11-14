@@ -10,7 +10,6 @@ public class FoodItem implements Serializable {
     private double price;
     private String name;
     private int quantity = 0;
-    private boolean isAvailable = true;
     private int id;
     private FoodType foodType;
 
@@ -37,14 +36,6 @@ public class FoodItem implements Serializable {
 
     public int getQuantity() {
         return quantity;
-    }
-
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean available) {
-        isAvailable = available;
     }
 
     public FoodType getFoodType() {
