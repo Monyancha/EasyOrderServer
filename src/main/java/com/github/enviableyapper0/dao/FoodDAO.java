@@ -24,6 +24,17 @@ public class FoodDAO {
             foodItemList.add(new FoodItem(rs.getInt(1), rs.getString(2),
                     rs.getDouble(4), FoodType.values()[rs.getInt(3)]));
         }
+        rs.close();
         return foodItemList;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try{
+            statement.close();
+        } catch (Exception e) { /*Nothing*/ }
+        try{
+            dbConnection.close();
+        } catch (Exception e) { /*Nothing*/ }
     }
 }

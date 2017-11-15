@@ -38,6 +38,7 @@ public class OrderDAO {
     public Order getOrder(int id) throws SQLException, NotFoundException {
         ResultSet rs = statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.FoodId = Food.id WHERE OrderId = " + id);
         if (!rs.next()) {
+            rs.close();
             if (getHighestOrderId() <= id){
                 return null;
             } else {
@@ -49,6 +50,7 @@ public class OrderDAO {
         do {
             order.getFoodItems().add(new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]));
         } while (rs.next());
+        rs.close();
         return order;
     }
 
@@ -68,20 +70,23 @@ public class OrderDAO {
         ResultSet rs = statement.executeQuery("SELECT id FROM OrderInstance WHERE orderId = " + orderId);
         for (int i = 0; i <= foodIndex; i++) {
             if (!rs.next()) {
+                rs.close();
                 return false;
             }
         }
         statement.execute("DELETE FROM OrderInstace WHERE id = " + rs.getInt(1));
+        rs.close();
         return true;
     }
 
     private int getHighestOrderId() throws SQLException {
         ResultSet rs = statement.executeQuery("SELECT OrderId FROM OrderInstance ORDER BY OrderId DESC LIMIT 1;");
+        int result = 0;
         if (rs.next()) {
-            return rs.getInt(1);
-        } else {
-            return 0;
+            result = rs.getInt(1);
         }
+        rs.close();
+        return result;
     }
 
     private List<Order> getQueriedListOfOrders(String sql) throws SQLException {
@@ -97,6 +102,16 @@ public class OrderDAO {
             }
             order.getFoodItems().add(new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]));
         }
+        rs.close();
         return orders;
+    }
+    @Override
+    protected void finalize() throws Throwable {
+        try{
+            statement.close();
+        } catch (Exception e) { /*Nothing*/ }
+        try{
+            dbConnection.close();
+        } catch (Exception e) { /*Nothing*/ }
     }
 }
