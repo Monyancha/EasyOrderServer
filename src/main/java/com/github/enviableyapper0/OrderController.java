@@ -5,6 +5,7 @@ import com.github.enviableyapper0.beans.FoodType;
 import com.github.enviableyapper0.beans.Order;
 import com.github.enviableyapper0.dao.OrderDAO;
 
+import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -12,6 +13,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Path("order")
+@Singleton
 public class OrderController {
     private OrderDAO orderDAO;
 
