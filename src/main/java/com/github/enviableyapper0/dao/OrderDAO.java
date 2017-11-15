@@ -19,7 +19,7 @@ public class OrderDAO {
     }
 
     public List<Order> getAllOrder() throws SQLException {
-        return getQueriedListOfOrders("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.FoodId = Food.id");
+        return getQueriedListOfOrders(statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.FoodId = Food.id"));
     }
 
     public int addOrder(Order order) throws SQLException {
@@ -59,7 +59,8 @@ public class OrderDAO {
     }
 
     public List<Order> getTableOrders(int tableNum) throws SQLException {
-        return getQueriedListOfOrders("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.Id = Food.id WHERE TableNum = " + tableNum);
+        return getQueriedListOfOrders(statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity " +
+                "FROM OrderInstance INNER JOIN Food ON OrderInstance.Id = Food.id WHERE TableNum = " + tableNum));
     }
 
     public void deleteTableOrders(int tableNum) throws SQLException {
@@ -89,9 +90,8 @@ public class OrderDAO {
         return result;
     }
 
-    private List<Order> getQueriedListOfOrders(String sql) throws SQLException {
+    private List<Order> getQueriedListOfOrders(ResultSet rs) throws SQLException {
         List<Order> orders = new LinkedList<>();
-        ResultSet rs = statement.executeQuery(sql);
 
         while (rs.next()) {
             Order order = new Order(rs.getInt(1), rs.getInt(2));
@@ -107,6 +107,7 @@ public class OrderDAO {
     }
     @Override
     protected void finalize() throws Throwable {
+        super.finalize();
         try{
             statement.close();
         } catch (Exception e) { /*Nothing*/ }

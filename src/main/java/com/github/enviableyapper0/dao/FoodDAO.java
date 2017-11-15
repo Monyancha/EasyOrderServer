@@ -30,6 +30,7 @@ public class FoodDAO {
 
     @Override
     protected void finalize() throws Throwable {
+        super.finalize();
         try{
             statement.close();
         } catch (Exception e) { /*Nothing*/ }
