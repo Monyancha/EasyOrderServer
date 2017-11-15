@@ -28,7 +28,7 @@ public class OrderController {
     @Path("test")
     public Order getTestFood() {
         Order order = new Order(42, 3);
-        order.getFoods().add(new FoodItem(42, "Test Food", 30, FoodType.MAIN_DISH));
+        order.getFoodItems().add(new FoodItem(42, "Test Food", 30, FoodType.MAIN_DISH));
         return order;
     }
 
@@ -39,11 +39,15 @@ public class OrderController {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllOrder() {
+        List<Order> orders;
         try{
-            return Response.ok().entity(orderDAO.getAllOrder()).build();
+            orders = orderDAO.getAllOrder();
         } catch (SQLException e) {
             return buildInternalServerErrorResponse(e);
         }
+        if (orders.isEmpty())
+            return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.ok(orders, MediaType.APPLICATION_JSON).build();
     }
 
     /**

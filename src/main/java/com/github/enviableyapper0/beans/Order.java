@@ -19,8 +19,12 @@ public class Order implements Serializable {
         this.tableNum = tableNum;
     }
 
-    public List<FoodItem> getFoods() {
+    public List<FoodItem> getFoodItems() {
         return foods;
+    }
+
+    public void setFoodItems(List<FoodItem> foods) {
+        this.foods = foods;
     }
 
     public int getTableNum() {

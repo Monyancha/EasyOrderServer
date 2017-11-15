@@ -19,12 +19,12 @@ public class OrderDAO {
     }
 
     public List<Order> getAllOrder() throws SQLException {
-        return getQueriedListOfOrders("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.Id = Food.id");
+        return getQueriedListOfOrders("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.FoodId = Food.id");
     }
 
     public int addOrder(Order order) throws SQLException {
         order.setId(getHighestOrderId() + 1);
-        for (FoodItem food : order.getFoods()) {
+        for (FoodItem food : order.getFoodItems()) {
             statement.execute("INSERT INTO OrderInstance (OrderId, TableNum, FoodId, Quantity) VALUES (" +
                     order.getId() + ", " +
                     order.getTableNum() + "," +
@@ -36,8 +36,8 @@ public class OrderDAO {
     }
 
     public Order getOrder(int id) throws SQLException, NotFoundException {
-        ResultSet rs = statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.Id = Food.id WHERE OrderId = " + id);
-        if (rs.next()) {
+        ResultSet rs = statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.FoodId = Food.id WHERE OrderId = " + id);
+        if (!rs.next()) {
             if (getHighestOrderId() <= id){
                 return null;
             } else {
@@ -47,7 +47,7 @@ public class OrderDAO {
         Order order = new Order(rs.getInt(1), rs.getInt(2));
 
         do {
-            order.getFoods().add(new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]));
+            order.getFoodItems().add(new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]));
         } while (rs.next());
         return order;
     }
@@ -92,8 +92,10 @@ public class OrderDAO {
             Order order = new Order(rs.getInt(1), rs.getInt(2));
             if (orders.contains(order)) {
                 order = orders.get(orders.indexOf(order));
+            } else {
+                orders.add(order);
             }
-            order.getFoods().add(new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]));
+            order.getFoodItems().add(new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]));
         }
         return orders;
     }
