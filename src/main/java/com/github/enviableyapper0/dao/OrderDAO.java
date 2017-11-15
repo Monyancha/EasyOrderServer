@@ -12,10 +12,12 @@ import java.util.List;
 public class OrderDAO {
     private Connection dbConnection;
     private Statement statement;
+    private int highestOrderNum;
 
     public OrderDAO() throws SQLException {
         this.dbConnection = DriverManager.getConnection("jdbc:sqlite:EasyOrder.db");
         this.statement = this.dbConnection.createStatement();
+        this.highestOrderNum = this.getHighestOrderId();
     }
 
     public List<Order> getAllOrder() throws SQLException {
@@ -23,7 +25,7 @@ public class OrderDAO {
     }
 
     public int addOrder(Order order) throws SQLException {
-        order.setId(getHighestOrderId() + 1);
+        order.setId(++highestOrderNum);
         for (FoodItem food : order.getFoodItems()) {
             statement.execute("INSERT INTO OrderInstance (OrderId, TableNum, FoodId, Quantity) VALUES (" +
                     order.getId() + ", " +
@@ -39,7 +41,7 @@ public class OrderDAO {
         ResultSet rs = statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.FoodId = Food.id WHERE OrderId = " + id);
         if (!rs.next()) {
             rs.close();
-            if (getHighestOrderId() <= id){
+            if (highestOrderNum <= id){
                 return null;
             } else {
                 throw new NotFoundException();
