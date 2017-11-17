@@ -150,7 +150,7 @@ public class OrderController {
      * @return an appropriate response
      */
     @DELETE
-    @Path("{orderId},{id}")
+    @Path("{orderId}/{id}")
     public Response deleteFoodItemInOrder(final @PathParam("orderId") int orderId, final @PathParam("id") int id) {
         try {
             orderDAO.deleteIndividualFoodItem(orderId, id);

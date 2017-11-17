@@ -77,7 +77,7 @@ public class OrderDAO {
                 return false;
             }
         }
-        statement.execute("DELETE FROM OrderInstace WHERE id = " + rs.getInt(1));
+        statement.execute("DELETE FROM OrderInstance WHERE id = " + rs.getInt(1));
         rs.close();
         return true;
     }
