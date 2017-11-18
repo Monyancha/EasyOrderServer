@@ -10,13 +10,12 @@ public class FoodItem implements Serializable {
     private double price;
     private String name;
     private int quantity = 0;
-    private boolean isAvailable = true;
-    private String id;
+    private int id;
     private FoodType foodType;
 
     public FoodItem() {}
 
-    public FoodItem(String id, String name, double price, FoodType foodType) {
+    public FoodItem(int id, String name, double price, FoodType foodType) {
         this.price = price;
         this.name = name;
         this.foodType = foodType;
@@ -39,19 +38,11 @@ public class FoodItem implements Serializable {
         return quantity;
     }
 
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean available) {
-        isAvailable = available;
-    }
-
     public FoodType getFoodType() {
         return foodType;
     }
 
-    public String getID() {
+    public int getID() {
         return id;
     }
 }

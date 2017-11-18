@@ -4,16 +4,23 @@ import com.github.enviableyapper0.beans.FoodItem;
 import com.github.enviableyapper0.beans.FoodType;
 import com.github.enviableyapper0.beans.Order;
 import com.github.enviableyapper0.dao.OrderDAO;
-import com.sun.org.apache.xpath.internal.operations.Or;
 
+import javax.inject.Singleton;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.awt.image.MemoryImageSource;
+import java.sql.SQLException;
 import java.util.List;
 
 @Path("order")
+@Singleton
 public class OrderController {
+    private OrderDAO orderDAO;
+
+    public OrderController() throws SQLException {
+        orderDAO = new OrderDAO();
+    }
+
     /**
      * This method return a sample json object when called by GET request at /order/test
      * @return a sample object
@@ -23,7 +30,7 @@ public class OrderController {
     @Path("test")
     public Order getTestFood() {
         Order order = new Order(42, 3);
-        order.getFoods().add(new FoodItem("42", "Test Food", 30, FoodType.MAIN_DISH));
+        order.getFoodItems().add(new FoodItem(42, "Test Food", 30, FoodType.MAIN_DISH));
         return order;
     }
 
@@ -33,8 +40,16 @@ public class OrderController {
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Order> getAllOrder() {
-        return OrderDAO.getAllOrder();
+    public Response getAllOrder() {
+        List<Order> orders;
+        try{
+            orders = orderDAO.getAllOrder();
+        } catch (SQLException e) {
+            return buildInternalServerErrorResponse(e);
+        }
+        if (orders.isEmpty())
+            return Response.status(Response.Status.NO_CONTENT).build();
+        return Response.ok(orders, MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -48,9 +63,11 @@ public class OrderController {
     public Response getOrder(final @PathParam("id") int id) {
         Order toReturn = null;
         try {
-            toReturn = OrderDAO.getOrder(id);
+            toReturn = orderDAO.getOrder(id);
         } catch (IndexOutOfBoundsException ex) {
             return Response.status(Response.Status.NOT_FOUND).build();
+        } catch (SQLException e) {
+            return buildInternalServerErrorResponse(e);
         }
         if (toReturn == null) {
             return Response.status(Response.Status.GONE).build();
@@ -66,7 +83,11 @@ public class OrderController {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public Response processIt(Order got) {
-        got.setId(OrderDAO.addOrder(got));
+        try {
+            orderDAO.addOrder(got);
+        } catch (SQLException e) {
+            return buildInternalServerErrorResponse(e);
+        }
         return Response.status(Response.Status.CREATED).entity(got.getId()).build();
     }
 
@@ -78,11 +99,12 @@ public class OrderController {
     @DELETE
     @Path("{id}")
     public Response deleteOrder(final @PathParam("id") int id) {
-        if (OrderDAO.deleteOrder(id)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+        try{
+            orderDAO.deleteOrder(id);
+        } catch (SQLException e) {
+            return buildInternalServerErrorResponse(e);
         }
+        return Response.ok().build();
     }
 
     /**
@@ -94,7 +116,12 @@ public class OrderController {
     @Path("table/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getOrdersFromTable(final @PathParam("id") int id) {
-        List<Order> orders = OrderDAO.getTableOrders(id);
+        List<Order> orders = null;
+        try {
+            orders = orderDAO.getTableOrders(id);
+        } catch (SQLException e) {
+            return buildInternalServerErrorResponse(e);
+        }
         if (orders.isEmpty())
             return Response.status(Response.Status.NO_CONTENT).build();
         return Response.ok().entity(orders).build();
@@ -109,10 +136,31 @@ public class OrderController {
     @Path("table/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response deleteTableOrders(final @PathParam("id") int id) {
-        if (OrderDAO.deleteTableOrders(id)) {
-            return Response.ok().build();
-        } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+        try {
+            orderDAO.deleteTableOrders(id);
+        } catch (SQLException e) {
+            return buildInternalServerErrorResponse(e);
         }
+        return Response.ok().build();
+    }
+
+    /**
+     * Delete an specified food item in order
+     *
+     * @return an appropriate response
+     */
+    @DELETE
+    @Path("{orderId}/{id}")
+    public Response deleteFoodItemInOrder(final @PathParam("orderId") int orderId, final @PathParam("id") int id) {
+        try {
+            orderDAO.deleteIndividualFoodItem(orderId, id);
+        } catch (SQLException e) {
+            return buildInternalServerErrorResponse(e);
+        }
+        return Response.ok().build();
+    }
+
+    private Response buildInternalServerErrorResponse(Exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
     }
 }

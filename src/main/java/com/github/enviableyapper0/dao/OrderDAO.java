@@ -1,56 +1,122 @@
 package com.github.enviableyapper0.dao;
 
+import com.github.enviableyapper0.beans.FoodItem;
+import com.github.enviableyapper0.beans.FoodType;
 import com.github.enviableyapper0.beans.Order;
 
-import java.util.ArrayList;
+import javax.ws.rs.NotFoundException;
+import java.sql.*;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 public class OrderDAO {
-    private static List<Order> orders = new ArrayList<>();
+    private Connection dbConnection;
+    private Statement statement;
+    private int highestOrderNum;
 
-    public static List<Order> getAllOrder() {
-        List<Order> toReturnOrder = new ArrayList<>();
-        for (Order order : orders) {
-            if (order != null) {
-                toReturnOrder.add(order);
+    public OrderDAO() throws SQLException {
+        this.dbConnection = DriverManager.getConnection("jdbc:sqlite:EasyOrder.db");
+        this.statement = this.dbConnection.createStatement();
+        this.highestOrderNum = this.getHighestOrderId();
+    }
+
+    public List<Order> getAllOrder() throws SQLException {
+        return getQueriedListOfOrders(statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.FoodId = Food.id"));
+    }
+
+    public int addOrder(Order order) throws SQLException {
+        order.setId(++highestOrderNum);
+        for (FoodItem food : order.getFoodItems()) {
+            statement.execute("INSERT INTO OrderInstance (OrderId, TableNum, FoodId, Quantity) VALUES (" +
+                    order.getId() + ", " +
+                    order.getTableNum() + "," +
+                    food.getID() + "," +
+                    food.getQuantity()
+                    + ")");
+        }
+        return order.getId();
+    }
+
+    public Order getOrder(int id) throws SQLException, NotFoundException {
+        ResultSet rs = statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity FROM OrderInstance INNER JOIN Food ON OrderInstance.FoodId = Food.id WHERE OrderId = " + id);
+        if (!rs.next()) {
+            rs.close();
+            if (highestOrderNum <= id){
+                return null;
+            } else {
+                throw new NotFoundException();
             }
         }
-        return toReturnOrder;
+        Order order = new Order(rs.getInt(1), rs.getInt(2));
+
+        do {
+            order.getFoodItems().add(new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]));
+        } while (rs.next());
+        rs.close();
+        return order;
     }
 
-    public static int addOrder(Order order) {
-        orders.add(order);
-        return orders.indexOf(order);
+    public void deleteOrder(int id) throws SQLException {
+        statement.execute("DELETE FROM OrderInstance WHERE OrderId = " + id);
     }
 
-    public static Order getOrder(int index) {
-        return orders.get(index);
+    public List<Order> getTableOrders(int tableNum) throws SQLException {
+        return getQueriedListOfOrders(statement.executeQuery("SELECT OrderId, TableNum, FoodId, Name, Price, Type, Quantity " +
+                "FROM OrderInstance INNER JOIN Food ON OrderInstance.Id = Food.id WHERE TableNum = " + tableNum));
     }
 
-    public static boolean deleteOrder(int index) {
-        try {
-            orders.set(index, null);
-        } catch (NoSuchElementException ex) {
-            return false;
-        } finally {
-            return true;
-        }
+    public void deleteTableOrders(int tableNum) throws SQLException {
+        statement.execute("DELETE FROM OrderInstace WHERE TableNum = " + tableNum);
     }
 
-    public static List<Order> getTableOrders(int tableNum) {
-        List<Order> orderInTable = new ArrayList<>();
-        return orderInTable;
-    }
-
-    public static boolean deleteTableOrders(int tableNum) {
-        boolean elementDeleted = false;
-        for (Order order : orders) {
-            if (order != null && order.getTableNum() == tableNum) {
-                orders.set(orders.indexOf(order), null);
-                elementDeleted = true;
+    public boolean deleteIndividualFoodItem(int orderId, int foodIndex) throws SQLException {
+        ResultSet rs = statement.executeQuery("SELECT id FROM OrderInstance WHERE orderId = " + orderId);
+        for (int i = 0; i <= foodIndex; i++) {
+            if (!rs.next()) {
+                rs.close();
+                return false;
             }
         }
-        return elementDeleted;
+        statement.execute("DELETE FROM OrderInstance WHERE id = " + rs.getInt(1));
+        rs.close();
+        return true;
+    }
+
+    private int getHighestOrderId() throws SQLException {
+        ResultSet rs = statement.executeQuery("SELECT OrderId FROM OrderInstance ORDER BY OrderId DESC LIMIT 1;");
+        int result = 0;
+        if (rs.next()) {
+            result = rs.getInt(1);
+        }
+        rs.close();
+        return result;
+    }
+
+    private List<Order> getQueriedListOfOrders(ResultSet rs) throws SQLException {
+        List<Order> orders = new LinkedList<>();
+
+        while (rs.next()) {
+            Order order = new Order(rs.getInt(1), rs.getInt(2));
+            if (orders.contains(order)) {
+                order = orders.get(orders.indexOf(order));
+            } else {
+                orders.add(order);
+            }
+            FoodItem newFoodItem = new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]);
+            newFoodItem.setQuantity(rs.getInt(7));
+            order.getFoodItems().add(newFoodItem);
+        }
+        rs.close();
+        return orders;
+    }
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        try{
+            statement.close();
+        } catch (Exception e) { /*Nothing*/ }
+        try{
+            dbConnection.close();
+        } catch (Exception e) { /*Nothing*/ }
     }
 }
