@@ -19,6 +19,10 @@ public class FoodController {
         this.foodDAO = new FoodDAO();
     }
 
+    /**
+     * Query of foods in database
+     * @return List of Foods
+     */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getAllFood() {

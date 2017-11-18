@@ -36,7 +36,7 @@ public class OrderController {
 
     /**
      * This method return a list of all order
-     * @return list of all order
+     * @return 200 ok with the list of all orders if there is at least one order, 204 No Content if there is no order.
      */
     @GET
     @Produces(MediaType.APPLICATION_JSON)
@@ -53,9 +53,11 @@ public class OrderController {
     }
 
     /**
-     * Get individual order
-     * @param id
-     * @return an object which the id that was specified with appropriate response
+     * Get individual order.
+     * @param id The id of an Order of interest.
+     * @return An Order which the id that was specified for with 200 ok, 404 Not found if the Order with the specified
+     * id was not found, 410 Gone if an Order with is found to have existed before but was deleted (This response will
+     * always persisted until the ids got recycled).
      */
     @GET
     @Path("{id}")
@@ -76,9 +78,9 @@ public class OrderController {
     }
 
     /**
-     * Add an order to the list
-     * @param got
-     * @return An appropriate response with object id (as integer) in body
+     * Add an order to the list.
+     * @param got The Order that will be added.
+     * @return An 201 Created with object id (as integer) in body if the operation is successful.
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -92,9 +94,11 @@ public class OrderController {
     }
 
     /**
-     * Delete an object, id will not be recycled for the rest of server instance lifetime
-     * @param id
-     * @return an appropriate response
+     * Delete an object.
+     * The Order id will be reset when the list of Orders are empty on shutdown.
+     * @param id The id of the Order of interest.
+     * @return An 200 ok if the operation is successful regardless of whether the Order with the specified id existed
+     * in the first place or not.
      */
     @DELETE
     @Path("{id}")
@@ -108,9 +112,10 @@ public class OrderController {
     }
 
     /**
-     * Get the list of all order that has the specified table number
-     * @param id
-     * @return List of all Order that has the specified table number with appropriate response
+     * Get the list of all order that has the specified table number.
+     * @param id The table number of interested
+     * @return List of all Order that has the specified table number with appropriate response. 204 No Content if there
+     * is not Order with the specified table number
      */
     @GET
     @Path("table/{id}")
@@ -129,8 +134,9 @@ public class OrderController {
 
     /**
      * Delete all order that has the specified table number
-     * @param id
-     * @return an appropriate response
+     * @param id The table number of interested
+     * @return An 200 ok if the operation is successful regardless of whether the Order with the specified table number
+     * existed in the first place or not.
      */
     @DELETE
     @Path("table/{id}")
@@ -146,8 +152,10 @@ public class OrderController {
 
     /**
      * Delete an specified food item in order
-     *
-     * @return an appropriate response
+     * @param orderId The order id of the object of interest.
+     * @param id The index (started at 0) of the foodItem index of interest.
+     * @return An 200 ok if the operation is successful regardless of whether the food item with the specified order id
+     * and index existed in the first place or not.
      */
     @DELETE
     @Path("{orderId}/{id}")
