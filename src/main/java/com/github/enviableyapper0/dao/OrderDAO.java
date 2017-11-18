@@ -102,7 +102,9 @@ public class OrderDAO {
             } else {
                 orders.add(order);
             }
-            order.getFoodItems().add(new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]));
+            FoodItem newFoodItem = new FoodItem(rs.getInt(3), rs.getString(4), rs.getDouble(5), FoodType.values()[rs.getInt(6)]);
+            newFoodItem.setQuantity(rs.getInt(7));
+            order.getFoodItems().add(newFoodItem);
         }
         rs.close();
         return orders;
